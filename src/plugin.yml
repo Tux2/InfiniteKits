@@ -1,0 +1,33 @@
+name: InfiniteKits
+main: com.tux2mc.infinitekits.InfiniteKits
+version: 0.1
+softdepend: [Vault, CommandPoints]
+
+permissions:
+  infinitekits.modifykit:
+    description: Allows the player to add and modify existing kits.
+    default: op
+  infinitekits.free:
+    description: Allows the player to add and modify existing kits.
+    default: op
+  infinitekits.kit.*:
+    description: Allows the player to add and modify existing kits.
+    default: true
+
+commands:
+   kit:
+      description: Gives a user a kit, using money first, then command points if enabled.
+      usage: |
+       /kit <kitname>
+   ikit:
+      description: Gives a user a kit using their money if enabled.
+      usage: |
+       /ikit <kitname>
+   ckit:
+      description: Gives a user a kit, using their command points if enabled.
+      usage: |
+       /ckit <kitname>
+   mkit:
+      description: Makes a kit.
+      usage: |
+       /mkit <remove|additem|removeitem|setprice|setcp|requireboth|requireone> <kitname>
