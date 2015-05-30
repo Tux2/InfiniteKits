@@ -1,6 +1,6 @@
 name: InfiniteKits
 main: com.tux2mc.infinitekits.InfiniteKits
-version: 0.1
+version: 1.0
 softdepend: [Vault, CommandPoints]
 
 permissions:
@@ -8,11 +8,34 @@ permissions:
     description: Allows the player to add and modify existing kits.
     default: op
   infinitekits.free:
-    description: Allows the player to add and modify existing kits.
+    description: Allows the player to use the kit commands for free.
     default: op
-  infinitekits.kit.*:
-    description: Allows the player to add and modify existing kits.
-    default: true
+  infinitekits.nocooldown:
+    description: Allows the player to use kits without waiting for the cooldown period.
+    default: op
+  infinitekits.potions.create:
+    description: Allows the player to create and customize potions.
+    default: op
+    infinitekits.customize.*:
+        default: op
+        description: Gives access to all commands and abilities
+        children:
+            infinitekits.customize.displayname: true
+            infinitekits.customize.lore: true
+            infinitekits.customize.repaircost: true
+            infinitekits.customize.heads: true
+  infinitekits.customize.displayname:
+    description: Allows the player to customize item names.
+    default: op
+  infinitekits.customize.lore:
+    description: Allows the player to customize the lore on an item.
+    default: op
+  infinitekits.customize.repaircost:
+    description: Allows the player to customize the repair cost on an item.
+    default: op
+  infinitekits.customize.heads:
+    description: Allows the player to spawn custom heads.
+    default: op
 
 commands:
    kit:
@@ -30,4 +53,16 @@ commands:
    mkit:
       description: Makes a kit.
       usage: |
-       /mkit <remove|additem|removeitem|setprice|setcp|requireboth|requireone> <kitname>
+       /mkit <remove|additem|removeitem|setprice|setcp|requireboth|requireone|setcooldown> <kitname>
+   newpotion:
+      description: Gives you a blank potion, ready to customize.
+      usage: |
+       /newpotion <quantity>
+   npeffect:
+      description: Adds a potion effect to the potion you are holding.
+      usage: |
+       /npeffect [potioneffect] [multiplier] [duration] <ambient>
+   infinitekits:
+      description: General command for custom item creation.
+      usage: |
+       /infinitekits [setname|setlore|addlore|setrepaircost|playerhead] [value]

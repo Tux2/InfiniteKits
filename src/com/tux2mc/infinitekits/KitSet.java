@@ -5,17 +5,21 @@ import java.util.LinkedList;
 import org.bukkit.inventory.ItemStack;
 
 public class KitSet {
-	
+
 	LinkedList<IKStack> items = new LinkedList<IKStack>();
 	double icoprice = 0;
 	int cpprice = 0;
 	boolean needsboth = true;
+	long cooldown = 0;
+	String name = "";
 	
-	public KitSet() {
+	public KitSet(String name) {
+		this.name = name;
 	}
 	
-	public KitSet(LinkedList<IKStack> items) {
+	public KitSet(String name, LinkedList<IKStack> items) {
 		this.items = items;
+		this.name = name;
 	}
 	
 	public LinkedList<IKStack> getKit() {
@@ -70,6 +74,10 @@ public class KitSet {
 		items.remove(is);
 	}
 	
+	public void setItems(LinkedList<IKStack> items) {
+		this.items = items;
+	}
+	
 	public ItemStack[] getKitStacks() {
 		int totalitems = 0;
 		for(int i = 0; i < items.size(); i++) {
@@ -88,5 +96,16 @@ public class KitSet {
 		}
 		return isitems;
 	}
-
+	
+	public long getCooldown() {
+		return cooldown;
+	}
+	
+	public void setCooldown(long cd) {
+		cooldown = cd;
+	}
+	
+	public String getName() {
+		return name;
+	}
 }
