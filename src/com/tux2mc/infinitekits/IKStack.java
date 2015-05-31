@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Color;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.block.banner.Pattern;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
@@ -30,6 +33,7 @@ public class IKStack {
 	List<String> lore = null;
 	String headname = null;
 	int repaircost = 0;
+	IKBanner bannerdata = null;
 
 	public IKStack(ItemStack is) {
 		itemid = is.getType();
@@ -54,6 +58,11 @@ public class IKStack {
 			potioneffects = ((PotionMeta) meta).getCustomEffects();
 		}else if(meta instanceof SkullMeta) {
 			headname = ((SkullMeta) meta).getOwner();
+		}else if(meta instanceof BannerMeta) {
+			BannerMeta bannermeta = (BannerMeta) meta;
+			DyeColor basecolor = bannermeta.getBaseColor();
+			List<Pattern> patterns = bannermeta.getPatterns();
+			bannerdata = new IKBanner(basecolor, patterns);
 		}
 		if(meta instanceof Repairable) {
 			repaircost = ((Repairable) meta).getRepairCost();
@@ -152,6 +161,14 @@ public class IKStack {
 	public void setRepairCost(int repaircost) {
 		this.repaircost = repaircost;
 	}
+	
+	public void setBannerData(IKBanner banner) {
+		bannerdata = banner;
+	}
+	
+	public IKBanner getBannerData() {
+		return bannerdata;
+	}
 
 	public ItemStack[] getItemStacks() {
 		if(quantity <= 64) {
@@ -178,6 +195,12 @@ public class IKStack {
 				}
 			}else if(meta instanceof SkullMeta) {
 				((SkullMeta) meta).setOwner(headname);
+			}else if(meta instanceof BannerMeta) {
+				if(bannerdata != null) {
+					BannerMeta bmeta = (BannerMeta) meta;
+					bmeta.setBaseColor(bannerdata.getBaseColor());
+					bmeta.setPatterns(bannerdata.getPatterns());
+				}
 			}
 			if(meta instanceof Repairable) {
 				((Repairable) meta).setRepairCost(repaircost);

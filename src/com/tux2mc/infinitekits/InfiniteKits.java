@@ -26,6 +26,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.block.banner.Pattern;
+import org.bukkit.block.banner.PatternType;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -61,7 +63,7 @@ public class InfiniteKits extends JavaPlugin {
 	
 	ConcurrentHashMap<String, KitSet> kits = new ConcurrentHashMap<String, KitSet>();
 	
-	ConcurrentHashMap<String, Boolean> prelogins = new ConcurrentHashMap<String, Boolean>();
+	ConcurrentHashMap<UUID, Boolean> prelogins = new ConcurrentHashMap<UUID, Boolean>();
 	
 	ConcurrentHashMap<UUID, EditKit> editkits = new ConcurrentHashMap<UUID, EditKit>();
 	
@@ -245,6 +247,20 @@ public class InfiniteKits extends JavaPlugin {
             				if(title != null) {
             					title = ChatColor.translateAlternateColorCodes('&', title);
             				}
+                        	String sbasecolor = config.getString("kits." + kitname + ".items." + itemname + ".banner.basecolor", null);
+                        	DyeColor basecolor = null;
+                        	if(sbasecolor != null) {
+                        		basecolor = DyeColor.valueOf(sbasecolor);
+                        	}
+                        	List<String> spatterns = config.getStringList("kits." + kitname + ".items." + itemname + ".banner.patterns");
+                        	LinkedList<Pattern> patterns = new LinkedList<Pattern>();
+                        	for(String spattern : spatterns) {
+                        		String[] psplit = spattern.split(":");
+                        		DyeColor color = DyeColor.valueOf(psplit[0]);
+                        		PatternType patterntype = PatternType.getByIdentifier(psplit[1]);
+                        		Pattern pattern = new Pattern(color, patterntype);
+                        		patterns.add(pattern);
+                        	}
                             //If there is a quantity of 0 we don't need to add it...
                             if(quantity > 0) {
                                 IKStack stack = new IKStack(itemid, damage, quantity, enchants, pages, author, title);
@@ -254,6 +270,9 @@ public class InfiniteKits extends JavaPlugin {
                                 String name = config.getString("kits." + kitname + ".items." + itemname + ".name", null);
                                 if(name != null) {
                                 	name = ChatColor.translateAlternateColorCodes('&', name);
+                                }
+                                if(basecolor != null) {
+                                	stack.setBannerData(new IKBanner(basecolor, patterns));
                                 }
                                 stack.setName(name);
                                 stack.setPotionEffects((List<PotionEffect>) config.getList("kits." + kitname + ".items." + itemname + ".potioneffects", null));
@@ -311,8 +330,8 @@ public class InfiniteKits extends JavaPlugin {
 							//Make sure they have enough cp or money to pay for the kit...
 							if(hasenough(label, kit, player)) {
 								if(!player.hasPermission("infinitekits.nocooldown")) {
-									if(cooldowns.containsKey(player.getName().toLowerCase() + "." + args[0].toLowerCase())) {
-										long lastused = cooldowns.get(player.getName().toLowerCase() + "." + args[0].toLowerCase());
+									if(cooldowns.containsKey(player.getUniqueId().toString() + "." + args[0].toLowerCase())) {
+										long lastused = cooldowns.get(player.getUniqueId().toString() + "." + args[0].toLowerCase());
 										if(lastused + (kit.getCooldown() * 1000) > System.currentTimeMillis()) {
 											player.sendMessage(ChatColor.DARK_RED + "You haven't waited long enough to use the kit again!");
 											return true;
@@ -326,7 +345,7 @@ public class InfiniteKits extends JavaPlugin {
 										player.getInventory().addItem(items[i]);
 									}
 									if(!player.hasPermission("infinitekits.nocooldown")) {
-										cooldowns.put(player.getName().toLowerCase() + "." + args[0].toLowerCase(), new Long(System.currentTimeMillis()));
+										cooldowns.put(player.getUniqueId().toString() + "." + args[0].toLowerCase(), new Long(System.currentTimeMillis()));
 										if(kitwrite++ > 5) {
 											saveCooldowns();
 											kitwrite = 0;
@@ -706,6 +725,16 @@ public class InfiniteKits extends JavaPlugin {
             	}
             	config.set("kits." + realname + ".items.item" + i + ".potioneffects", is.getPotionEffects());
             	config.set("kits." + realname + ".items.item" + i + ".repaircost", is.getRepairCost());
+            	//Save banner data
+            	if(is.getBannerData() != null) {
+            		IKBanner banner = is.getBannerData();
+                	config.set("kits." + realname + ".items.item" + i + ".banner.basecolor", banner.getBaseColor().name());
+                	LinkedList<String> patterns = new LinkedList<String>();
+                	for(Pattern pattern : banner.getPatterns()) {
+                		patterns.add(pattern.getColor().name() + ":" + pattern.getPattern().getIdentifier());
+                	}
+                	config.set("kits." + realname + ".items.item" + i + ".banner.patterns", patterns);
+            	}
         	}
     	}
     	saveConfig();
